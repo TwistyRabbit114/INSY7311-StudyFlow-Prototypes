@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StudyFlow - Calendar</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background-color: #F5F5F5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .mobile-frame {
+            width: 375px;
+            height: 812px;
+            background: #FAFAFA;
+            border-radius: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Status Bar */
+        .status-bar {
+            height: 44px;
+            background: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            font-size: 15px;
+        }
+
+        .time {
+            font-weight: 600;
+        }
+
+        .status-icons {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+        }
+
+        /* Header */
+        .header {
+            background: white;
+            padding: 20px 20px 16px;
+            border-bottom: 1px solid #E0E0E0;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            font-weight: 700;
+            color: #212121;
+        }
+
+        .principle-tag {
+            font-size: 11px;
+            color: #2196F3;
+            margin-top: 4px;
+            font-weight: 500;
+        }
+
+        /* Content Area - Extra whitespace */
+        .content {
+            padding: 24px 20px;
+            height: calc(812px - 44px - 90px - 70px);
+            overflow-y: auto;
+        }
+
+        /* Whitespace Annotation */
+        .whitespace-annotation {
+            position: relative;
+            margin-bottom: 150px;
+        }
+
+        .whitespace-label {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 193, 7, 0.15);
+            border: 2px dashed #FFC107;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 11px;
+            color: #F57C00;
+            font-weight: 600;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        /* Study Session Card - Minimalist */
+        .session-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            border-left: 4px solid #2196F3;
+            position: relative;
+        }
+
+        .session-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2196F3;
+            margin-bottom: 12px;
+        }
+
+        .session-time {
+            font-size: 14px;
+            color: #616161;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .session-course {
+            font-size: 14px;
+            color: #757575;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .swipe-hint {
+            font-size: 12px;
+            color: #BDBDBD;
+            font-style: italic;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* Minimal Color Palette Indicator */
+        .color-palette {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            display: flex;
+            gap: 6px;
+            padding: 6px 10px;
+            background: #FFF9E6;
+            border-radius: 6px;
+            border: 1px dashed #FFC107;
+        }
+
+        .color-dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            border: 2px solid white;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+
+        .color-label {
+            font-size: 9px;
+            color: #F57C00;
+            font-weight: 600;
+            margin-left: 4px;
+            line-height: 14px;
+        }
+
+        /* FAB Button */
+        .fab {
+            position: absolute;
+            bottom: 90px;
+            right: 20px;
+            width: 56px;
+            height: 56px;
+            background: #2196F3;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(33, 150, 243, 0.4);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .fab:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 16px rgba(33, 150, 243, 0.5);
+        }
+
+        .fab-icon {
+            color: white;
+            font-size: 28px;
+            font-weight: 300;
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 70px;
+            background: white;
+            border-top: 1px solid #E0E0E0;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding-bottom: 8px;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            padding: 8px 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .nav-item:hover {
+            opacity: 0.7;
+        }
+
+        .nav-icon {
+            width: 24px;
+            height: 24px;
+            color: #9E9E9E;
+        }
+
+        .nav-item.active .nav-icon {
+            color: #2196F3;
+        }
+
+        .nav-label {
+            font-size: 11px;
+            color: #9E9E9E;
+            font-weight: 500;
+        }
+
+        .nav-item.active .nav-label {
+            color: #2196F3;
+        }
+
+        /* Scrollbar */
+        .content::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .content::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .content::-webkit-scrollbar-thumb {
+            background: #BDBDBD;
+            border-radius: 2px;
+        }
+
+        /* Accessibility */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                transition: none !important;
+            }
+        }
+
+        @media (prefers-contrast: high) {
+            .session-card {
+                border: 2px solid #212121;
+            }
+        }
+
+        .fab:focus-visible {
+            outline: 3px solid #2196F3;
+            outline-offset: 2px;
+        }
+    </style>
+</head>
+<body>
+    <div class="mobile-frame">
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <div class="time">9:41</div>
+            <div class="status-icons">●●● ⚡ ▮▮▮</div>
+        </div>
+
+        <!-- Header -->
+        <div class="header">
+            <h1>Calendar</h1>
+            <div class="principle-tag">Principle: Simplicity — one card, ample whitespace, minimal palette</div>
+        </div>
+
+        <!-- Content Area -->
+        <div class="content">
+            <!-- Study Session Card -->
+            <div class="session-card">
+                <!-- Color Palette Indicator -->
+                <div class="color-palette">
+                    <div class="color-dot" style="background: #2196F3;"></div>
+                    <div class="color-dot" style="background: white;"></div>
+                    <div class="color-dot" style="background: #757575;"></div>
+                    <span class="color-label">3-color palette</span>
+                </div>
+
+                <div class="session-title">Study Session: Chemistry</div>
+                
+                <div class="session-time">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"/>
+                        <path d="M12.5 7H11v6l5.25 3.15.75-1.23-4.5-2.67z"/>
+                    </svg>
+                    10:00 AM – 11:30 AM
+                </div>
+
+                <div class="session-course">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z"/>
+                    </svg>
+                    Chemistry 2B
+                </div>
+
+                <div class="swipe-hint">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+                    </svg>
+                    Swipe left on any item for options →
+                </div>
+            </div>
+
+            <!-- Whitespace annotation -->
+            <div class="whitespace-annotation">
+                <div class="whitespace-label">
+                    Whitespace<br>(clarity)
+                </div>
+            </div>
+        </div>
+
+        <!-- FAB Button -->
+        <div class="fab" tabindex="0" role="button" aria-label="Add new calendar event">
+            <div class="fab-icon">+</div>
+        </div>
+
+        <!-- Bottom Navigation -->
+        <div class="bottom-nav">
+            <div class="nav-item">
+                <svg class="nav-icon" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+                </svg>
+                <div class="nav-label">Dashboard</div>
+            </div>
+
+            <div class="nav-item active">
+                <svg class="nav-icon" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11z"/>
+                </svg>
+                <div class="nav-label">Calendar</div>
+            </div>
+
+            <div class="nav-item">
+                <svg class="nav-icon" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/>
+                </svg>
+                <div class="nav-label">Tasks</div>
+            </div>
+
+            <div class="nav-item">
+                <svg class="nav-icon" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                </svg>
+                <div class="nav-label">Profile</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // FAB functionality
+        document.querySelector('.fab').addEventListener('click', function() {
+            const feedback = document.createElement('div');
+            feedback.innerHTML = `
+                <div style="font-size: 16px; font-weight: 700; margin-bottom: 8px;">📅 New Study Session</div>
+                <div style="font-size: 13px; opacity: 0.9;">Creating new session...</div>
+            `;
+            feedback.style.cssText = 'position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #2196F3; color: white; padding: 20px 30px; border-radius: 12px; z-index: 2000; box-shadow: 0 8px 24px rgba(0,0,0,0.3); text-align: center;';
+            document.body.appendChild(feedback);
+            
+            setTimeout(() => {
+                feedback.style.opacity = '0';
+                feedback.style.transition = 'opacity 0.3s';
+                setTimeout(() => feedback.remove(), 300);
+            }, 1500);
+        });
+
+        // Keyboard support for FAB
+        document.querySelector('.fab').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                this.click();
+            }
+        });
+
+        // Navigation
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', function() {
+                document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+                this.classList.add('active');
+                
+                const label = this.querySelector('.nav-label').textContent;
+                const feedback = document.createElement('div');
+                feedback.textContent = `Navigating to ${label}...`;
+                feedback.style.cssText = 'position: fixed; top: 100px; left: 50%; transform: translateX(-50%); background: #2196F3; color: white; padding: 10px 20px; border-radius: 6px; font-size: 13px; font-weight: 600; z-index: 2000;';
+                document.body.appendChild(feedback);
+                
+                setTimeout(() => {
+                    feedback.style.opacity = '0';
+                    feedback.style.transition = 'opacity 0.2s';
+                    setTimeout(() => feedback.remove(), 200);
+                }, 1000);
+            });
+        });
+
+        // Swipe functionality with VISIBLE actions panel
+        let touchStartX = 0;
+        let currentX = 0;
+        let isSwiping = false;
+        const card = document.querySelector('.session-card');
+        
+        // Create actions panel
+        const actionsPanel = document.createElement('div');
+        actionsPanel.innerHTML = `
+            <button style="background: #2196F3; color: white; border: none; padding: 12px 16px; border-radius: 6px; font-weight: 600; cursor: pointer; margin: 0 4px;">✏️ Edit</button>
+            <button style="background: #F44336; color: white; border: none; padding: 12px 16px; border-radius: 6px; font-weight: 600; cursor: pointer; margin: 0 4px;">🗑️ Delete</button>
+            <button style="background: #4CAF50; color: white; border: none; padding: 12px 16px; border-radius: 6px; font-weight: 600; cursor: pointer; margin: 0 4px;">✓ Complete</button>
+        `;
+        actionsPanel.style.cssText = 'position: absolute; right: 16px; top: 50%; transform: translateY(-50%); display: none; gap: 8px; z-index: 5;';
+        card.style.position = 'relative';
+
+        // Touch events
+        card.addEventListener('touchstart', function(e) {
+            touchStartX = e.touches[0].clientX;
+            isSwiping = true;
+        });
+
+        card.addEventListener('touchmove', function(e) {
+            if (!isSwiping) return;
+            currentX = e.touches[0].clientX;
+            const diff = touchStartX - currentX;
+            
+            if (diff > 0 && diff < 150) {
+                card.style.transform = `translateX(-${diff}px)`;
+            }
+        });
+
+        card.addEventListener('touchend', function(e) {
+            const touchEndX = e.changedTouches[0].clientX;
+            const diff = touchStartX - touchEndX;
+            
+            if (diff > 80) {
+                // Show actions
+                card.style.transform = 'translateX(-120px)';
+                card.style.transition = 'transform 0.3s ease';
+                
+                if (!card.contains(actionsPanel)) {
+                    card.appendChild(actionsPanel);
+                }
+                actionsPanel.style.display = 'flex';
+                
+                // Add click handlers
+                actionsPanel.querySelectorAll('button').forEach((btn, idx) => {
+                    btn.onclick = () => {
+                        const actions = ['Edit', 'Delete', 'Complete'];
+                        const feedback = document.createElement('div');
+                        feedback.textContent = `${actions[idx]} action triggered!`;
+                        feedback.style.cssText = 'position: fixed; top: 100px; left: 50%; transform: translateX(-50%); background: #4CAF50; color: white; padding: 12px 24px; border-radius: 8px; font-size: 14px; font-weight: 600; z-index: 2000;';
+                        document.body.appendChild(feedback);
+                        
+                        setTimeout(() => feedback.remove(), 2000);
+                        
+                        // Reset card
+                        card.style.transform = 'translateX(0)';
+                        actionsPanel.style.display = 'none';
+                    };
+                });
+            } else {
+                // Reset
+                card.style.transform = 'translateX(0)';
+                card.style.transition = 'transform 0.3s ease';
+                actionsPanel.style.display = 'none';
+            }
+            
+            isSwiping = false;
+        });
+
+        // Mouse simulation of swipe (for desktop)
+        let mouseStartX = 0;
+        let isMouseDown = false;
+
+        card.addEventListener('mousedown', function(e) {
+            isMouseDown = true;
+            mouseStartX = e.clientX;
+            card.style.cursor = 'grabbing';
+        });
+
+        document.addEventListener('mousemove', function(e) {
+            if (!isMouseDown) return;
+            const diff = mouseStartX - e.clientX;
+            
+            if (diff > 0 && diff < 150) {
+                card.style.transform = `translateX(-${diff}px)`;
+            }
+        });
+
+        document.addEventListener('mouseup', function(e) {
+            if (isMouseDown) {
+                const mouseEndX = e.clientX;
+                const diff = mouseStartX - mouseEndX;
+                
+                if (diff > 80) {
+                    // Show actions
+                    card.style.transform = 'translateX(-120px)';
+                    card.style.transition = 'transform 0.3s ease';
+                    
+                    if (!card.contains(actionsPanel)) {
+                        card.appendChild(actionsPanel);
+                    }
+                    actionsPanel.style.display = 'flex';
+                    
+                    // Add click handlers
+                    actionsPanel.querySelectorAll('button').forEach((btn, idx) => {
+                        btn.onclick = () => {
+                            const actions = ['Edit', 'Delete', 'Complete'];
+                            const feedback = document.createElement('div');
+                            feedback.textContent = `✓ ${actions[idx]} action!`;
+                            feedback.style.cssText = 'position: fixed; top: 100px; left: 50%; transform: translateX(-50%); background: #4CAF50; color: white; padding: 12px 24px; border-radius: 8px; font-size: 14px; font-weight: 600; z-index: 2000;';
+                            document.body.appendChild(feedback);
+                            
+                            setTimeout(() => feedback.remove(), 2000);
+                            
+                            // Reset card
+                            card.style.transform = 'translateX(0)';
+                            actionsPanel.style.display = 'none';
+                        };
+                    });
+                } else {
+                    // Reset
+                    card.style.transform = 'translateX(0)';
+                    card.style.transition = 'transform 0.3s ease';
+                    actionsPanel.style.display = 'none';
+                }
+            }
+            isMouseDown = false;
+            card.style.cursor = 'grab';
+        });
+
+        card.style.cursor = 'grab';
+    </script>
+</body>
+</html>

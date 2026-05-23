@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StudyFlow - Assignments</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background-color: #F5F5F5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .mobile-frame {
+            width: 375px;
+            height: 812px;
+            background: white;
+            border-radius: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Status Bar */
+        .status-bar {
+            height: 44px;
+            background: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            font-size: 15px;
+        }
+
+        .time {
+            font-weight: 600;
+        }
+
+        .status-icons {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+        }
+
+        /* Header */
+        .header {
+            background: white;
+            padding: 20px 20px 16px;
+            border-bottom: 1px solid #E0E0E0;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            font-weight: 700;
+            color: #212121;
+        }
+
+        .principle-tag {
+            font-size: 11px;
+            color: #2196F3;
+            margin-top: 4px;
+            font-weight: 500;
+        }
+
+        /* Content Area */
+        .content {
+            padding: 16px;
+            height: calc(812px - 44px - 90px - 70px);
+            overflow-y: auto;
+            background: #FAFAFA;
+        }
+
+        /* Assignment Card */
+        .assignment-card {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Color Contrast - Overdue */
+        .assignment-card.overdue {
+            background: linear-gradient(to right, #FFEBEE 0%, white 8%);
+            border-left: 4px solid #F44336;
+        }
+
+        /* Color Contrast - Due Soon */
+        .assignment-card.due-soon {
+            background: linear-gradient(to right, #FFF3E0 0%, white 8%);
+            border-left: 4px solid #FF9800;
+        }
+
+        /* Color Contrast - On Track */
+        .assignment-card.on-track {
+            background: linear-gradient(to right, #E8F5E9 0%, white 8%);
+            border-left: 4px solid #4CAF50;
+        }
+
+        /* Contrast Annotation */
+        .contrast-badge {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 9px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .contrast-badge.overdue {
+            background: #F44336;
+            color: white;
+        }
+
+        .contrast-badge.due-soon {
+            background: #FF9800;
+            color: white;
+        }
+
+        .contrast-badge.on-track {
+            background: #4CAF50;
+            color: white;
+        }
+
+        /* Card Header */
+        .card-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-top: 4px;
+            flex-shrink: 0;
+        }
+
+        .status-dot.red { background: #F44336; }
+        .status-dot.amber { background: #FF9800; }
+        .status-dot.green { background: #4CAF50; }
+
+        /* Typographic Contrast */
+        .assignment-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #212121;
+            flex: 1;
+            line-height: 1.3;
+        }
+
+        .assignment-course {
+            font-size: 13px;
+            font-weight: 400;
+            color: #616161;
+            margin-bottom: 8px;
+            margin-left: 22px;
+        }
+
+        .assignment-meta {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-left: 22px;
+            margin-bottom: 12px;
+        }
+
+        .due-date {
+            font-size: 12px;
+            color: #757575;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .completion {
+            font-size: 11px;
+            font-weight: 600;
+            color: #757575;
+        }
+
+        /* Progress Bar */
+        .progress-bar-container {
+            width: calc(100% - 22px);
+            height: 6px;
+            background: rgba(0,0,0,0.08);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-left: 22px;
+            margin-bottom: 12px;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+
+        /* Action Buttons - Size Contrast */
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+            margin-left: 22px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-edit {
+            background: #2196F3;
+            color: white;
+            flex: 1;
+        }
+
+        .btn-edit:hover {
+            background: #1976D2;
+            transform: translateY(-1px);
+        }
+
+        .btn-complete {
+            background: #4CAF50;
+            color: white;
+            flex: 1;
+        }
+
+        .btn-complete:hover {
+            background: #388E3C;
+            transform: translateY(-1px);
+        }
+
+        /* Contrast Explanation Box */
+        .contrast-explanation {
+            background: #FFF9E6;
+            border: 2px dashed #FFC107;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 12px;
+            font-size: 11px;
+            color: #F57C00;
+            line-height: 1.4;
+        }
+
+        .contrast-explanation strong {
+            display: block;
+            margin-bottom: 4px;
+            font-size: 12px;
+        }
+
+        /* FAB Button - Maximum Contrast */
+        .fab {
+            position: absolute;
+            bottom: 90px;
+            right: 20px;
+            width: 56px;
+            height: 56px;
+            background: #2196F3;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 6px 20px rgba(33, 150, 243, 0.5);
+            cursor: pointer;
+            transition: all 0.2s;
+            z-index: 10;
+        }
+
+        .fab:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 24px rgba(33, 150, 243, 0.6);
+        }
+
+        .fab:active {
+            transform: scale(1.05);
+        }
+
+        .fab-icon {
+            color: white;
+            font-size: 32px;
+            font-weight: 300;
+        }
+
+        .fab-label {
+            position: absolute;
+            bottom: -8px;
+            right: -8px;
+            background: #FFC107;
+            color: #212121;
+            font-size: 9px;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 4px;
+            border: 2px solid white;
+        }
+
+        /* Modal for New Assignment */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            width: 320px;
+            max-width: 90%;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            font-size: 20px;
+            font-weight: 700;
+            color: #212121;
+            margin-bottom: 20px;
+        }
+
+        .modal-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #E0E0E0;
+            border-radius: 8px;
+            font-size: 14px;
+            margin-bottom: 12px;
+            font-family: inherit;
+        }
+
+        .modal-input:focus {
+            outline: none;
+            border-color: #2196F3;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 8px;
+            margin-top: 16px;
+        }
+
+        .modal-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .modal-btn-primary {
+            background: #2196F3;
+            color: white;
+        }
+
+        .modal-btn-primary:hover {
+            background: #1976D2;
+        }
+
+        .modal-btn-secondary {
+            background: #E0E0E0;
+            color: #424242;
+        }
+
+        .modal-btn-secondary:hover {
+            background: #BDBDBD;
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 70px;
+            background: white;
+            border-top: 1px solid #E0E0E0;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding-bottom: 8px;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            padding: 8px 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .nav-item:hover {
+            opacity: 0.7;
+        }
+
+        .nav-icon {
+            width: 24px;
+            height: 24px;
+            color: #9E9E9E;
+        }
+
+        .nav-item.active .nav-icon {
+            color: #2196F3;
+        }
+
+        .nav-label {
+            font-size: 11px;
+            color: #9E9E9E;
+            font-weight: 500;
+        }
+
+        .nav-item.active .nav-label {
+            color: #2196F3;
+        }
+
+        /* Scrollbar */
+        .content::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .content::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .content::-webkit-scrollbar-thumb {
+            background: #BDBDBD;
+            border-radius: 2px;
+        }
+
+        /* Accessibility */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                transition: none !important;
+            }
+        }
+
+        @media (prefers-contrast: high) {
+            .assignment-card {
+                border: 3px solid #212121;
+            }
+            .btn {
+                border: 2px solid white;
+            }
+        }
+
+        .btn:focus-visible,
+        .fab:focus-visible {
+            outline: 3px solid #2196F3;
+            outline-offset: 2px;
+        }
+    </style>
+</head>
+<body>
+    <div class="mobile-frame">
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <div class="time">9:41</div>
+            <div class="status-icons">●●● ⚡ ▮▮▮</div>
+        </div>
+
+        <!-- Header -->
+        <div class="header">
+            <h1>Assignments</h1>
+            <div class="principle-tag">Principle: Contrast — colour, typographic & size contrast</div>
+        </div>
+
+        <!-- Content Area -->
+        <div class="content">
+            <!-- Contrast Explanation -->
+            <div class="contrast-explanation">
+                <strong>Contrast Implementation:</strong>
+                Color (status badges), Typography (bold vs light), Size (large title vs small metadata)
+            </div>
+
+            <!-- Research Essay - OVERDUE -->
+            <div class="assignment-card overdue">
+                <div class="contrast-badge overdue">OVERDUE</div>
+                
+                <div class="card-header">
+                    <div class="status-dot red"></div>
+                    <div class="assignment-title">Research Essay</div>
+                </div>
+                
+                <div class="assignment-course">Information Systems</div>
+                
+                <div class="assignment-meta">
+                    <div class="due-date">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"/>
+                        </svg>
+                        Overdue by 1 day
+                    </div>
+                    <div class="completion">40% complete</div>
+                </div>
+                
+                <div class="progress-bar-container">
+                    <div class="progress-bar-fill" style="width: 40%; background: #F44336;"></div>
+                </div>
+                
+                <div class="action-buttons">
+                    <button class="btn btn-edit">Edit</button>
+                    <button class="btn btn-complete">Complete</button>
+                </div>
+            </div>
+
+            <!-- Research Essay Pt 2 - DUE SOON -->
+            <div class="assignment-card due-soon">
+                <div class="contrast-badge due-soon">DUE SOON</div>
+                
+                <div class="card-header">
+                    <div class="status-dot amber"></div>
+                    <div class="assignment-title">Research Essay Pt 2</div>
+                </div>
+                
+                <div class="assignment-course">Information Systems</div>
+                
+                <div class="assignment-meta">
+                    <div class="due-date">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"/>
+                        </svg>
+                        Due in 2 days
+                    </div>
+                    <div class="completion">55% complete</div>
+                </div>
+                
+                <div class="progress-bar-container">
+                    <div class="progress-bar-fill" style="width: 55%; background: #FF9800;"></div>
+                </div>
+                
+                <div class="action-buttons">
+                    <button class="btn btn-edit">Edit</button>
+                    <button class="btn btn-complete">Complete</button>
+                </div>
+            </div>
+
+            <!-- Mathematics Assignment - ON TRACK -->
+            <div class="assignment-card on-track">
+                <div class="contrast-badge on-track">ON TRACK</div>
+                
+                <div class="card-header">
+                    <div class="status-dot green"></div>
+                    <div class="assignment-title">Mathematics Assign.</div>
+                </div>
+                
+                <div class="assignment-course">Mathematics</div>
+                
+                <div class="assignment-meta">
+                    <div class="due-date">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"/>
+                        </svg>
+                        Due in 5 days
+                    </div>
+                    <div class="completion">85% complete</div>
+                </div>
+                
+                <div class="progress-bar-container">
+                    <div class="progress-bar-fill" style="width: 85%; background: #4CAF50;"></div>
+                </div>
+                
+                <div class="action-buttons">
+                    <button class="btn btn-edit">Edit</button>
+                    <button class="btn btn-complete">Complete</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- FAB Button with Contrast Label -->
+        <div class="fab" tabindex="0" role="button" aria-label="Add new assignment">
+            <div class="fab-icon">+</div>
+            <div class="fab-label">HI</div>
+        </div>
+
+        <!-- Modal for New Assignment -->
+        <div class="modal-overlay" id="assignmentModal">
+            <div class="modal-content">
+                <div class="modal-header">New Assignment</div>
+                <input type="text" class="modal-input" placeholder="Assignment title..." id="modalTitle">
+                <input type="text" class="modal-input" placeholder="Course (e.g., Mathematics)" id="modalCourse">
+                <input type="date" class="modal-input" id="modalDueDate">
+                <div class="modal-buttons">
+                    <button class="modal-btn modal-btn-secondary" id="modalCancel">Cancel</button>
+                    <button class="modal-btn modal-btn-primary" id="modalSave">Create</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Navigation -->
+        <div class="bottom-nav">
+            <div class="nav-item">
+                <svg class="nav-icon" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+                </svg>
+                <div class="nav-label">Dashboard</div>
+            </div>
+
+            <div class="nav-item">
+                <svg class="nav-icon" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11z"/>
+                </svg>
+                <div class="nav-label">Calendar</div>
+            </div>
+
+            <div class="nav-item active">
+                <svg class="nav-icon" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/>
+                </svg>
+                <div class="nav-label">Tasks</div>
+            </div>
+
+            <div class="nav-item">
+                <svg class="nav-icon" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                </svg>
+                <div class="nav-label">Profile</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Button interactions
+        document.querySelectorAll('.btn-edit').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const card = this.closest('.assignment-card');
+                const title = card.querySelector('.assignment-title').textContent;
+                
+                // Visual feedback - highlight the card
+                card.style.transform = 'scale(0.98)';
+                card.style.transition = 'transform 0.2s';
+                setTimeout(() => {
+                    card.style.transform = 'scale(1)';
+                }, 200);
+                
+                // Show edit mode
+                const originalTitle = title;
+                const titleElement = card.querySelector('.assignment-title');
+                titleElement.contentEditable = true;
+                titleElement.style.background = '#FFF9E6';
+                titleElement.style.padding = '4px 8px';
+                titleElement.style.borderRadius = '4px';
+                titleElement.style.border = '2px solid #2196F3';
+                titleElement.focus();
+                
+                // Change button text
+                this.textContent = '💾 Save';
+                this.style.background = '#4CAF50';
+                
+                // Save on next click
+                const saveHandler = (e) => {
+                    e.stopPropagation();
+                    titleElement.contentEditable = false;
+                    titleElement.style.background = 'transparent';
+                    titleElement.style.padding = '0';
+                    titleElement.style.border = 'none';
+                    this.textContent = 'Edit';
+                    this.style.background = '#2196F3';
+                    this.removeEventListener('click', saveHandler);
+                    
+                    // Show success feedback
+                    const feedback = document.createElement('div');
+                    feedback.textContent = '✓ Saved!';
+                    feedback.style.cssText = 'position: absolute; top: 8px; left: 50%; transform: translateX(-50%); background: #4CAF50; color: white; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; z-index: 100;';
+                    card.style.position = 'relative';
+                    card.appendChild(feedback);
+                    setTimeout(() => feedback.remove(), 2000);
+                };
+                this.addEventListener('click', saveHandler);
+            });
+        });
+
+        document.querySelectorAll('.btn-complete').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const card = this.closest('.assignment-card');
+                const title = card.querySelector('.assignment-title').textContent;
+                
+                // Animate completion
+                const progressBar = card.querySelector('.progress-bar-fill');
+                const currentWidth = parseInt(progressBar.style.width);
+                
+                if (currentWidth < 100) {
+                    // Animate to 100%
+                    let width = currentWidth;
+                    const interval = setInterval(() => {
+                        width += 2;
+                        if (width >= 100) {
+                            width = 100;
+                            clearInterval(interval);
+                            
+                            // Mark as completed
+                            card.querySelector('.completion').textContent = '100% complete';
+                            this.textContent = '✓ Completed';
+                            this.style.background = '#4CAF50';
+                            this.disabled = true;
+                            this.style.cursor = 'not-allowed';
+                            
+                            // Add completed styling
+                            card.style.opacity = '0.7';
+                            card.classList.remove('overdue', 'due-soon');
+                            card.classList.add('on-track');
+                            card.querySelector('.contrast-badge').textContent = 'COMPLETED';
+                            card.querySelector('.contrast-badge').classList.remove('overdue', 'due-soon');
+                            card.querySelector('.contrast-badge').classList.add('on-track');
+                            
+                            // Celebration effect
+                            const celebration = document.createElement('div');
+                            celebration.textContent = '🎉 Assignment Completed!';
+                            celebration.style.cssText = 'position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #4CAF50; color: white; padding: 20px 30px; border-radius: 12px; font-size: 18px; font-weight: 700; z-index: 1000; box-shadow: 0 8px 24px rgba(0,0,0,0.3);';
+                            document.body.appendChild(celebration);
+                            setTimeout(() => {
+                                celebration.style.opacity = '0';
+                                celebration.style.transition = 'opacity 0.5s';
+                                setTimeout(() => celebration.remove(), 500);
+                            }, 2000);
+                        }
+                        progressBar.style.width = width + '%';
+                    }, 10);
+                } else {
+                    // Already complete - show message
+                    const msg = document.createElement('div');
+                    msg.textContent = 'Already completed! ✓';
+                    msg.style.cssText = 'position: absolute; top: 8px; left: 50%; transform: translateX(-50%); background: #4CAF50; color: white; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; z-index: 100;';
+                    card.style.position = 'relative';
+                    card.appendChild(msg);
+                    setTimeout(() => msg.remove(), 2000);
+                }
+            });
+        });
+
+        // FAB
+        document.querySelector('.fab').addEventListener('click', function() {
+            document.getElementById('assignmentModal').classList.add('active');
+            document.getElementById('modalTitle').focus();
+        });
+
+        // Keyboard support
+        document.querySelector('.fab').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                this.click();
+            }
+        });
+
+        // Modal functionality
+        document.getElementById('modalCancel').addEventListener('click', function() {
+            document.getElementById('assignmentModal').classList.remove('active');
+            // Clear inputs
+            document.getElementById('modalTitle').value = '';
+            document.getElementById('modalCourse').value = '';
+            document.getElementById('modalDueDate').value = '';
+        });
+
+        document.getElementById('modalSave').addEventListener('click', function() {
+            const title = document.getElementById('modalTitle').value.trim();
+            const course = document.getElementById('modalCourse').value.trim();
+            const dueDate = document.getElementById('modalDueDate').value;
+            
+            if (!title) {
+                alert('Please enter an assignment title');
+                return;
+            }
+            
+            // Create new assignment card
+            const newCard = document.createElement('div');
+            newCard.className = 'assignment-card due-soon';
+            newCard.innerHTML = `
+                <div class="contrast-badge due-soon">NEW</div>
+                
+                <div class="card-header">
+                    <div class="status-dot amber"></div>
+                    <div class="assignment-title">${title}</div>
+                </div>
+                
+                <div class="assignment-course">${course || 'No course specified'}</div>
+                
+                <div class="assignment-meta">
+                    <div class="due-date">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"/>
+                        </svg>
+                        ${dueDate || 'No due date'}
+                    </div>
+                    <div class="completion">0% complete</div>
+                </div>
+                
+                <div class="progress-bar-container">
+                    <div class="progress-bar-fill" style="width: 0%; background: #FF9800;"></div>
+                </div>
+                
+                <div class="action-buttons">
+                    <button class="btn btn-edit">Edit</button>
+                    <button class="btn btn-complete">Complete</button>
+                </div>
+            `;
+            
+            // Add to content area
+            const content = document.querySelector('.content');
+            const explanation = content.querySelector('.contrast-explanation');
+            content.insertBefore(newCard, explanation.nextSibling);
+            
+            // Re-attach event listeners to new buttons
+            const editBtn = newCard.querySelector('.btn-edit');
+            const completeBtn = newCard.querySelector('.btn-complete');
+            
+            editBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const card = this.closest('.assignment-card');
+                const titleEl = card.querySelector('.assignment-title');
+                
+                titleEl.contentEditable = true;
+                titleEl.style.background = '#FFF9E6';
+                titleEl.style.padding = '4px 8px';
+                titleEl.style.borderRadius = '4px';
+                titleEl.style.border = '2px solid #2196F3';
+                titleEl.focus();
+                
+                this.textContent = '💾 Save';
+                this.style.background = '#4CAF50';
+                
+                const saveHandler = (e) => {
+                    e.stopPropagation();
+                    titleEl.contentEditable = false;
+                    titleEl.style.background = 'transparent';
+                    titleEl.style.padding = '0';
+                    titleEl.style.border = 'none';
+                    this.textContent = 'Edit';
+                    this.style.background = '#2196F3';
+                    this.removeEventListener('click', saveHandler);
+                };
+                this.addEventListener('click', saveHandler);
+            });
+            
+            completeBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const card = this.closest('.assignment-card');
+                const progressBar = card.querySelector('.progress-bar-fill');
+                
+                let width = 0;
+                const interval = setInterval(() => {
+                    width += 2;
+                    if (width >= 100) {
+                        width = 100;
+                        clearInterval(interval);
+                        
+                        card.querySelector('.completion').textContent = '100% complete';
+                        this.textContent = '✓ Completed';
+                        this.style.background = '#4CAF50';
+                        this.disabled = true;
+                        card.style.opacity = '0.7';
+                    }
+                    progressBar.style.width = width + '%';
+                }, 10);
+            });
+            
+            // Close modal and show success
+            document.getElementById('assignmentModal').classList.remove('active');
+            document.getElementById('modalTitle').value = '';
+            document.getElementById('modalCourse').value = '';
+            document.getElementById('modalDueDate').value = '';
+            
+            // Success message
+            const success = document.createElement('div');
+            success.textContent = '✓ Assignment Created!';
+            success.style.cssText = 'position: fixed; top: 100px; left: 50%; transform: translateX(-50%); background: #4CAF50; color: white; padding: 12px 24px; border-radius: 8px; font-size: 14px; font-weight: 600; z-index: 2000; box-shadow: 0 4px 12px rgba(0,0,0,0.3);';
+            document.body.appendChild(success);
+            setTimeout(() => {
+                success.style.opacity = '0';
+                success.style.transition = 'opacity 0.3s';
+                setTimeout(() => success.remove(), 300);
+            }, 2000);
+            
+            // Highlight new card
+            newCard.style.animation = 'slideUp 0.3s ease';
+        });
+
+        // Close modal on overlay click
+        document.getElementById('assignmentModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                this.classList.remove('active');
+            }
+        });
+
+        // Navigation
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', function() {
+                document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        // Animate progress bars on load
+        window.addEventListener('load', function() {
+            document.querySelectorAll('.progress-bar-fill').forEach(bar => {
+                const width = bar.style.width;
+                bar.style.width = '0%';
+                setTimeout(() => {
+                    bar.style.width = width;
+                }, 100);
+            });
+        });
+    </script>
+</body>
+</html>

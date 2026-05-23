@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StudyFlow - Visual Hierarchy</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background-color: #F5F5F5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .mobile-frame {
+            width: 375px;
+            height: 812px;
+            background: white;
+            border-radius: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Status Bar */
+        .status-bar {
+            height: 44px;
+            background: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            font-size: 15px;
+        }
+
+        .time {
+            font-weight: 600;
+        }
+
+        .status-icons {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+        }
+
+        /* Split View */
+        .split-container {
+            display: flex;
+            height: calc(812px - 44px - 70px);
+        }
+
+        .split-pane {
+            flex: 1;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .split-pane.left {
+            border-right: 2px solid #E0E0E0;
+        }
+
+        /* Headers */
+        .pane-header {
+            background: white;
+            padding: 16px;
+            border-bottom: 1px solid #E0E0E0;
+            position: sticky;
+            top: 0;
+            z-index: 5;
+        }
+
+        .pane-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #212121;
+            margin-bottom: 4px;
+        }
+
+        .pane-subtitle {
+            font-size: 10px;
+            color: #2196F3;
+            font-weight: 500;
+        }
+
+        /* Content */
+        .pane-content {
+            padding: 12px;
+        }
+
+        /* Hierarchy Level Annotations */
+        .hierarchy-item {
+            position: relative;
+            margin-bottom: 16px;
+        }
+
+        .level-badge {
+            position: absolute;
+            left: -8px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #FFC107;
+            color: #212121;
+            font-size: 9px;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 3px;
+            z-index: 2;
+            border: 2px solid white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        /* Level 1 - Screen Title (Largest) */
+        .level-1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #212121;
+            line-height: 1.2;
+        }
+
+        /* Level 2 - Card Titles (Medium) */
+        .level-2 {
+            font-size: 16px;
+            font-weight: 600;
+            color: #212121;
+            line-height: 1.3;
+        }
+
+        /* Level 3 - Metadata (Smallest) */
+        .level-3 {
+            font-size: 12px;
+            font-weight: 400;
+            color: #757575;
+            line-height: 1.4;
+        }
+
+        /* Dashboard Example */
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 10px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+            border-left: 3px solid #2196F3;
+        }
+
+        .card-header {
+            margin-bottom: 8px;
+        }
+
+        .card-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .progress-mini {
+            width: 100%;
+            height: 4px;
+            background: #E0E0E0;
+            border-radius: 2px;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+
+        .progress-fill-mini {
+            height: 100%;
+            background: #2196F3;
+        }
+
+        /* Assignments Example - Urgency Ranking */
+        .urgency-card {
+            background: white;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 8px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+            position: relative;
+        }
+
+        .urgency-card.rank-1 {
+            border-left: 4px solid #F44336;
+            background: #FFEBEE;
+        }
+
+        .urgency-card.rank-2 {
+            border-left: 4px solid #FF9800;
+            background: #FFF3E0;
+        }
+
+        .urgency-card.rank-3 {
+            border-left: 4px solid #4CAF50;
+            background: #E8F5E9;
+        }
+
+        .rank-badge {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: #FFC107;
+            color: #212121;
+            font-size: 9px;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 4px;
+            border: 2px solid white;
+        }
+
+        .urgency-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #212121;
+            margin-bottom: 4px;
+        }
+
+        .urgency-meta {
+            font-size: 11px;
+            color: #616161;
+        }
+
+        /* Color Hierarchy Indicator */
+        .color-priority {
+            position: fixed;
+            bottom: 90px;
+            right: 20px;
+            background: #2196F3;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(33, 150, 243, 0.4);
+            z-index: 10;
+        }
+
+        .color-priority-icon {
+            color: white;
+            font-size: 24px;
+        }
+
+        .priority-label {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #FFC107;
+            color: #212121;
+            font-size: 8px;
+            font-weight: 700;
+            padding: 2px 5px;
+            border-radius: 3px;
+            border: 2px solid white;
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 70px;
+            background: white;
+            border-top: 1px solid #E0E0E0;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding-bottom: 8px;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            padding: 8px 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .nav-item:hover {
+            opacity: 0.7;
+        }
+
+        .nav-icon {
+            width: 22px;
+            height: 22px;
+            color: #9E9E9E;
+        }
+
+        .nav-item.active .nav-icon {
+            color: #2196F3;
+        }
+
+        .nav-label {
+            font-size: 10px;
+            color: #9E9E9E;
+            font-weight: 500;
+        }
+
+        .nav-item.active .nav-label {
+            color: #2196F3;
+        }
+
+        /* Scrollbar */
+        .split-pane::-webkit-scrollbar {
+            width: 3px;
+        }
+
+        .split-pane::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .split-pane::-webkit-scrollbar-thumb {
+            background: #BDBDBD;
+            border-radius: 2px;
+        }
+
+        /* Accessibility */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                transition: none !important;
+            }
+        }
+
+        @media (prefers-contrast: high) {
+            .card, .urgency-card {
+                border: 2px solid #212121;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="mobile-frame">
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <div class="time">9:41</div>
+            <div class="status-icons">●●● ⚡ ▮▮▮</div>
+        </div>
+
+        <!-- Split View -->
+        <div class="split-container">
+            <!-- LEFT: Dashboard - 3-Level Hierarchy -->
+            <div class="split-pane left">
+                <div class="pane-header">
+                    <div class="pane-title">Fig A: Dashboard</div>
+                    <div class="pane-subtitle">3-Level Hierarchy</div>
+                </div>
+                
+                <div class="pane-content">
+                    <!-- Level 1: Screen Title -->
+                    <div class="hierarchy-item">
+                        <div class="level-badge">← L1</div>
+                        <div class="level-1">Dashboard</div>
+                    </div>
+
+                    <!-- Card 1 -->
+                    <div class="card">
+                        <!-- Level 2: Card Title -->
+                        <div class="card-header hierarchy-item">
+                            <div class="level-badge">← L2</div>
+                            <div class="level-2">Research Essay</div>
+                        </div>
+                        
+                        <!-- Level 3: Metadata -->
+                        <div class="hierarchy-item">
+                            <div class="level-badge">← L3</div>
+                            <div class="card-meta">
+                                <div class="level-3">Info Systems | Due Soon</div>
+                                <div class="level-3">40% complete</div>
+                            </div>
+                        </div>
+                        
+                        <div class="progress-mini">
+                            <div class="progress-fill-mini" style="width: 40%;"></div>
+                        </div>
+                    </div>
+
+                    <!-- Card 2 -->
+                    <div class="card" style="border-left-color: #4CAF50;">
+                        <div class="card-header hierarchy-item">
+                            <div class="level-badge">← L2</div>
+                            <div class="level-2">Math Assignment</div>
+                        </div>
+                        
+                        <div class="hierarchy-item">
+                            <div class="level-badge">← L3</div>
+                            <div class="card-meta">
+                                <div class="level-3">Mathematics | On Track</div>
+                                <div class="level-3">85% complete</div>
+                            </div>
+                        </div>
+                        
+                        <div class="progress-mini">
+                            <div class="progress-fill-mini" style="width: 85%; background: #4CAF50;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT: Assignments - Urgency Order -->
+            <div class="split-pane">
+                <div class="pane-header">
+                    <div class="pane-title">Fig B: Assignments</div>
+                    <div class="pane-subtitle">Urgency Order</div>
+                </div>
+                
+                <div class="pane-content">
+                    <!-- Level 1: Screen Title -->
+                    <div class="hierarchy-item" style="margin-bottom: 12px;">
+                        <div class="level-badge">← L1</div>
+                        <div class="level-1" style="font-size: 24px;">Assignments</div>
+                    </div>
+
+                    <!-- Rank 1: Most Urgent -->
+                    <div class="urgency-card rank-1">
+                        <div class="rank-badge">Rank 1</div>
+                        <div class="urgency-title">Research Essay</div>
+                        <div class="urgency-meta">Rank 1 — shown first due to urgency</div>
+                        <div class="level-3" style="margin-top: 4px;">40% complete</div>
+                    </div>
+
+                    <!-- Rank 2 -->
+                    <div class="urgency-card rank-2">
+                        <div class="rank-badge">Rank 2</div>
+                        <div class="urgency-title">Chemistry Lab</div>
+                        <div class="urgency-meta">Rank 2 — shown first due to urgency</div>
+                        <div class="level-3" style="margin-top: 4px;">55% complete</div>
+                    </div>
+
+                    <!-- Rank 3 -->
+                    <div class="urgency-card rank-3">
+                        <div class="rank-badge">Rank 3</div>
+                        <div class="urgency-title">Math Assignment</div>
+                        <div class="urgency-meta">Rank 3 — shown first due to urgency</div>
+                        <div class="level-3" style="margin-top: 4px;">85% complete</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Color Hierarchy: FAB as Highest Priority -->
+        <div class="color-priority">
+            <div class="priority-label">HI</div>
+            <div class="color-priority-icon">+</div>
+        </div>
+
+        <!-- Bottom Navigation -->
+        <div class="bottom-nav">
+            <div class="nav-item">
+                <svg class="nav-icon" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+                </svg>
+                <div class="nav-label">Dash</div>
+            </div>
+
+            <div class="nav-item">
+                <svg class="nav-icon" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11z"/>
+                </svg>
+                <div class="nav-label">Cal</div>
+            </div>
+
+            <div class="nav-item active">
+                <svg class="nav-icon" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/>
+                </svg>
+                <div class="nav-label">Tasks</div>
+            </div>
+
+            <div class="nav-item">
+                <svg class="nav-icon" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                </svg>
+                <div class="nav-label">Prof</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Color priority button
+        document.querySelector('.color-priority').addEventListener('click', function() {
+            const feedback = document.createElement('div');
+            feedback.innerHTML = `
+                <div style="font-size: 16px; font-weight: 700; margin-bottom: 6px;">🎯 Primary Action</div>
+                <div style="font-size: 13px; opacity: 0.9;">This blue FAB demonstrates highest visual priority through color hierarchy!</div>
+            `;
+            feedback.style.cssText = 'position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #2196F3; color: white; padding: 20px 30px; border-radius: 12px; z-index: 3000; box-shadow: 0 8px 24px rgba(0,0,0,0.3); text-align: center; max-width: 280px;';
+            document.body.appendChild(feedback);
+            
+            // Pulse animation
+            this.style.animation = 'pulse 0.3s ease';
+            
+            setTimeout(() => {
+                feedback.style.opacity = '0';
+                feedback.style.transition = 'opacity 0.3s';
+                setTimeout(() => feedback.remove(), 300);
+            }, 2500);
+        });
+
+        // Add pulse animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes pulse {
+                0%, 100% { transform: scale(1); }
+                50% { transform: scale(1.1); }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Navigation
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', function() {
+                document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+                this.classList.add('active');
+                
+                const label = this.querySelector('.nav-label').textContent;
+                const feedback = document.createElement('div');
+                feedback.textContent = `Navigating to ${label}...`;
+                feedback.style.cssText = 'position: fixed; top: 100px; left: 50%; transform: translateX(-50%); background: #2196F3; color: white; padding: 10px 20px; border-radius: 6px; font-size: 13px; font-weight: 600; z-index: 2000;';
+                document.body.appendChild(feedback);
+                
+                setTimeout(() => {
+                    feedback.style.opacity = '0';
+                    feedback.style.transition = 'opacity 0.2s';
+                    setTimeout(() => feedback.remove(), 200);
+                }, 1000);
+            });
+        });
+
+        // Animate progress bars
+        window.addEventListener('load', function() {
+            document.querySelectorAll('.progress-fill-mini').forEach(bar => {
+                const width = bar.style.width;
+                bar.style.width = '0%';
+                setTimeout(() => {
+                    bar.style.width = width;
+                }, 100);
+            });
+        });
+
+        // Interactive hierarchy demonstrations
+        document.querySelectorAll('.level-badge').forEach(badge => {
+            badge.style.cursor = 'pointer';
+            badge.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const level = this.textContent.trim();
+                const feedback = document.createElement('div');
+                feedback.textContent = `${level} - Typographic hierarchy level`;
+                feedback.style.cssText = 'position: fixed; top: 100px; left: 50%; transform: translateX(-50%); background: #FFC107; color: #212121; padding: 8px 16px; border-radius: 6px; font-size: 12px; font-weight: 600; z-index: 2000;';
+                document.body.appendChild(feedback);
+                
+                setTimeout(() => feedback.remove(), 1500);
+            });
+        });
+
+        document.querySelectorAll('.rank-badge').forEach(badge => {
+            badge.style.cursor = 'pointer';
+            badge.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const rank = this.textContent.trim();
+                const feedback = document.createElement('div');
+                feedback.textContent = `${rank} - Positional hierarchy by urgency`;
+                feedback.style.cssText = 'position: fixed; top: 100px; left: 50%; transform: translateX(-50%); background: #FFC107; color: #212121; padding: 8px 16px; border-radius: 6px; font-size: 12px; font-weight: 600; z-index: 2000;';
+                document.body.appendChild(feedback);
+                
+                setTimeout(() => feedback.remove(), 1500);
+            });
+        });
+    </script>
+</body>
+</html>

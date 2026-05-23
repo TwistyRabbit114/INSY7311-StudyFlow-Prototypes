@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StudyFlow - New Assignment</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background-color: #F5F5F5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .mobile-frame {
+            width: 375px;
+            height: 812px;
+            background: white;
+            border-radius: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Status Bar */
+        .status-bar {
+            height: 44px;
+            background: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            font-size: 15px;
+        }
+
+        .time {
+            font-weight: 600;
+        }
+
+        .status-icons {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+        }
+
+        /* Header */
+        .header {
+            background: white;
+            padding: 16px 20px;
+            border-bottom: 1px solid #E0E0E0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .back-button {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: #2196F3;
+            font-size: 24px;
+        }
+
+        .header-content {
+            flex: 1;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 700;
+            color: #212121;
+        }
+
+        .principle-tag {
+            font-size: 10px;
+            color: #2196F3;
+            margin-top: 2px;
+            font-weight: 500;
+        }
+
+        /* Content Area */
+        .content {
+            padding: 20px;
+            height: calc(812px - 44px - 74px);
+            overflow-y: auto;
+        }
+
+        /* Form Sections */
+        .form-section {
+            margin-bottom: 24px;
+        }
+
+        .section-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #424242;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .section-sublabel {
+            font-size: 11px;
+            color: #757575;
+            margin-bottom: 10px;
+            font-style: italic;
+        }
+
+        /* Input Field */
+        .input-field {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid #E0E0E0;
+            border-radius: 8px;
+            font-size: 15px;
+            color: #212121;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: #2196F3;
+            background: #F0F8FF;
+        }
+
+        .input-field::placeholder {
+            color: #BDBDBD;
+        }
+
+        /* Tight Group Annotation */
+        .tight-group {
+            position: relative;
+            padding: 12px;
+            background: #FFF9E6;
+            border: 2px dashed #FFC107;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .tight-group-label {
+            position: absolute;
+            top: -10px;
+            right: 8px;
+            background: #FFC107;
+            color: #424242;
+            font-size: 10px;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        /* Chip Container */
+        .chip-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .chip {
+            padding: 10px 18px;
+            border: 2px solid #E0E0E0;
+            border-radius: 20px;
+            font-size: 14px;
+            color: #616161;
+            background: white;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+
+        .chip:hover {
+            border-color: #2196F3;
+            background: #E3F2FD;
+        }
+
+        .chip.selected {
+            background: #2196F3;
+            border-color: #2196F3;
+            color: white;
+        }
+
+        /* Save Button */
+        .save-button {
+            width: 100%;
+            padding: 16px;
+            background: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 8px;
+        }
+
+        .save-button:hover {
+            background: #1976D2;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
+        }
+
+        .save-button:active {
+            transform: translateY(0);
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 70px;
+            background: white;
+            border-top: 1px solid #E0E0E0;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding-bottom: 8px;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            padding: 8px 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            opacity: 0.5;
+        }
+
+        .nav-item:hover {
+            opacity: 0.7;
+        }
+
+        .nav-icon {
+            width: 24px;
+            height: 24px;
+            color: #9E9E9E;
+        }
+
+        .nav-label {
+            font-size: 11px;
+            color: #9E9E9E;
+            font-weight: 500;
+        }
+
+        /* Scrollbar */
+        .content::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .content::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .content::-webkit-scrollbar-thumb {
+            background: #BDBDBD;
+            border-radius: 2px;
+        }
+
+        /* Accessibility - High Contrast */
+        @media (prefers-contrast: high) {
+            .chip {
+                border-width: 3px;
+            }
+            .input-field {
+                border-width: 3px;
+            }
+        }
+
+        /* Accessibility - Reduced Motion */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                transition: none !important;
+            }
+        }
+
+        /* Focus visible for keyboard navigation */
+        .chip:focus-visible,
+        .input-field:focus-visible,
+        .save-button:focus-visible {
+            outline: 3px solid #2196F3;
+            outline-offset: 2px;
+        }
+    </style>
+</head>
+<body>
+    <div class="mobile-frame">
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <div class="time">9:41</div>
+            <div class="status-icons">●●● ⚡ ▮▮▮</div>
+        </div>
+
+        <!-- Header -->
+        <div class="header">
+            <div class="back-button">‹</div>
+            <div class="header-content">
+                <h1>New Assignment</h1>
+                <div class="principle-tag">Principle: Proximity — Gestalt grouping via spatial closeness</div>
+            </div>
+        </div>
+
+        <!-- Content Area -->
+        <div class="content">
+            <!-- Title Section -->
+            <div class="form-section">
+                <div class="section-label">TITLE</div>
+                <div class="section-sublabel">Recently used:</div>
+                <input type="text" class="input-field" placeholder="Enter assignment title..." 
+                       aria-label="Assignment title">
+            </div>
+
+            <!-- Course Section - Tight Group -->
+            <div class="tight-group">
+                <div class="tight-group-label">Tight group</div>
+                <div class="form-section" style="margin-bottom: 0;">
+                    <div class="section-label">COURSE</div>
+                    <div class="section-sublabel">Recently used:</div>
+                    <div class="chip-container">
+                        <div class="chip selected" tabindex="0" role="button" aria-pressed="true">Info Systems</div>
+                        <div class="chip" tabindex="0" role="button" aria-pressed="false">Chemistry</div>
+                        <div class="chip" tabindex="0" role="button" aria-pressed="false">Mathematics</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Type Section - Tight Group -->
+            <div class="tight-group">
+                <div class="tight-group-label">Tight group</div>
+                <div class="form-section" style="margin-bottom: 0;">
+                    <div class="section-label">TYPE</div>
+                    <div class="section-sublabel">Recently used:</div>
+                    <div class="chip-container">
+                        <div class="chip selected" tabindex="0" role="button" aria-pressed="true">Essay</div>
+                        <div class="chip" tabindex="0" role="button" aria-pressed="false">Lab Report</div>
+                        <div class="chip" tabindex="0" role="button" aria-pressed="false">Project</div>
+                        <div class="chip" tabindex="0" role="button" aria-pressed="false">Presentation</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Estimated Time Section - Tight Group -->
+            <div class="tight-group">
+                <div class="tight-group-label">Tight group</div>
+                <div class="form-section" style="margin-bottom: 0;">
+                    <div class="section-label">ESTIMATED TIME</div>
+                    <div class="section-sublabel">Based on similar assignments:</div>
+                    <div class="chip-container">
+                        <div class="chip selected" tabindex="0" role="button" aria-pressed="true">4 hours</div>
+                        <div class="chip" tabindex="0" role="button" aria-pressed="false">8 hours</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Save Button -->
+            <button class="save-button">Save Assignment</button>
+        </div>
+
+        <!-- Bottom Navigation -->
+        <div class="bottom-nav">
+            <div class="nav-item">
+                <svg class="nav-icon" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+                </svg>
+                <div class="nav-label">Dashboard</div>
+            </div>
+
+            <div class="nav-item">
+                <svg class="nav-icon" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11z"/>
+                </svg>
+                <div class="nav-label">Calendar</div>
+            </div>
+
+            <div class="nav-item">
+                <svg class="nav-icon" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/>
+                </svg>
+                <div class="nav-label">Tasks</div>
+            </div>
+
+            <div class="nav-item">
+                <svg class="nav-icon" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                </svg>
+                <div class="nav-label">Profile</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Chip selection functionality
+        document.querySelectorAll('.chip').forEach(chip => {
+            chip.addEventListener('click', function() {
+                // Get siblings in the same container
+                const container = this.parentElement;
+                const chips = container.querySelectorAll('.chip');
+                
+                // Remove selected from all chips in this container
+                chips.forEach(c => {
+                    c.classList.remove('selected');
+                    c.setAttribute('aria-pressed', 'false');
+                });
+                
+                // Add selected to clicked chip
+                this.classList.add('selected');
+                this.setAttribute('aria-pressed', 'true');
+            });
+
+            // Keyboard accessibility
+            chip.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    this.click();
+                }
+            });
+        });
+
+        // Save button functionality
+        document.querySelector('.save-button').addEventListener('click', function() {
+            const title = document.querySelector('.input-field').value;
+            const selectedCourse = document.querySelector('.chip-container .chip.selected')?.textContent || 'No course';
+            const selectedType = document.querySelectorAll('.chip-container')[1]?.querySelector('.chip.selected')?.textContent || 'No type';
+            const selectedTime = document.querySelectorAll('.chip-container')[2]?.querySelector('.chip.selected')?.textContent || 'No time';
+            
+            if (title.trim()) {
+                // Success feedback
+                const feedback = document.createElement('div');
+                feedback.innerHTML = `
+                    <div style="font-size: 16px; font-weight: 700; margin-bottom: 8px;">✓ Assignment Saved!</div>
+                    <div style="font-size: 13px; opacity: 0.9;">${title}</div>
+                    <div style="font-size: 12px; opacity: 0.8; margin-top: 4px;">${selectedCourse} • ${selectedType} • ${selectedTime}</div>
+                `;
+                feedback.style.cssText = 'position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #4CAF50; color: white; padding: 20px 30px; border-radius: 12px; z-index: 2000; box-shadow: 0 8px 24px rgba(0,0,0,0.3); text-align: center;';
+                document.body.appendChild(feedback);
+                
+                // Clear form
+                document.querySelector('.input-field').value = '';
+                
+                setTimeout(() => {
+                    feedback.style.opacity = '0';
+                    feedback.style.transition = 'opacity 0.3s';
+                    setTimeout(() => feedback.remove(), 300);
+                }, 2500);
+            } else {
+                // Error feedback
+                const error = document.createElement('div');
+                error.textContent = '⚠ Please enter an assignment title';
+                error.style.cssText = 'position: fixed; top: 100px; left: 50%; transform: translateX(-50%); background: #F44336; color: white; padding: 12px 24px; border-radius: 8px; font-size: 14px; font-weight: 600; z-index: 2000; box-shadow: 0 4px 12px rgba(0,0,0,0.3);';
+                document.body.appendChild(error);
+                document.querySelector('.input-field').focus();
+                document.querySelector('.input-field').style.borderColor = '#F44336';
+                
+                setTimeout(() => {
+                    error.style.opacity = '0';
+                    error.style.transition = 'opacity 0.3s';
+                    document.querySelector('.input-field').style.borderColor = '#E0E0E0';
+                    setTimeout(() => error.remove(), 300);
+                }, 2000);
+            }
+        });
+
+        // Back button
+        document.querySelector('.back-button').addEventListener('click', function() {
+            const feedback = document.createElement('div');
+            feedback.textContent = '← Returning to Dashboard...';
+            feedback.style.cssText = 'position: fixed; top: 100px; left: 50%; transform: translateX(-50%); background: #2196F3; color: white; padding: 10px 20px; border-radius: 6px; font-size: 13px; font-weight: 600; z-index: 2000;';
+            document.body.appendChild(feedback);
+            
+            setTimeout(() => {
+                feedback.style.opacity = '0';
+                feedback.style.transition = 'opacity 0.2s';
+                setTimeout(() => feedback.remove(), 200);
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
