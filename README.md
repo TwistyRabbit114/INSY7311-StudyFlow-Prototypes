@@ -74,7 +74,6 @@ These prototypes were developed as part of the INSY7311 Interaction Design cours
 **Ulrich Bezuidenhout**  
 Student Number: ST10441083  
 Course: INSY7311 - Interaction Design  
-Institution: [Your University Name]  
 Year: 2026
 
 ## 📚 References
@@ -97,4 +96,3 @@ This project is submitted as academic coursework for INSY7311. All rights reserv
 
 **Note:** These are interactive prototypes demonstrating design principles and UX concepts. They represent high-fidelity mockups, not a production-ready application.
 
-For questions or feedback, please contact through the university student portal.
